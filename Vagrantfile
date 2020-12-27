@@ -3,7 +3,7 @@
 
 Vagrant.configure("2") do |config|
 
-  config.vm.box = "ubuntu/bionic64"
+  config.vm.box = "ubuntu/focal64"
   config.vm.hostname = "FACTbox"
   config.disksize.size = "100GB"
   config.vm.network "forwarded_port", guest: 5000, host: 5000
@@ -11,6 +11,7 @@ Vagrant.configure("2") do |config|
   config.vm.boot_timeout = 500
 
   config.ssh.keep_alive = true
+  config.ssh.insert_key = false
 
 
   config.vm.provider "virtualbox" do |vb|
@@ -24,10 +25,11 @@ Vagrant.configure("2") do |config|
         set -ex
         echo "--- Prepare installation for the Firmware Analysis and Comparison Tool (FACT) ---"
         sudo apt update
-        sudo apt install -y git python3 python3-pip
+        sudo apt install -y git python3 python3-pip jq
         sudo mkdir -p /FACT_core
         sudo chown -R vagrant:users /FACT_core
-        git clone https://github.com/fkie-cad/FACT_core.git /FACT_core || git -C /FACT_core pull -f
+        VERSION_TAG=$(curl --silent "https://api.github.com/repos/fkie-cad/FACT_core/releases/latest" | jq -r .tag_name)
+        git clone https://github.com/fkie-cad/FACT_core.git --branch $VERSION_TAG --single-branch /FACT_core
         /FACT_core/src/install/pre_install.sh && sudo mkdir -p /media/data && sudo chown -R $USER /media/data
       SHELL
     s.privileged = false
@@ -37,13 +39,13 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell" do |s|
      s.inline = <<-SHELL
         set -ex
-        echo "---Install the Firmware Analysis and Comparison Tool (FACT)---"
+        echo "--- Install the Firmware Analysis and Comparison Tool (FACT) ---"
         /FACT_core/src/install.py
 
-        echo "---Enable acceess to webserver from remote---"
+        echo "--- Enable remote access to webserver ---"
         sed -i "s/127.0.0.1/0.0.0.0/g" /FACT_core/src/config/uwsgi_config.ini
 
-        echo "---Set autostart---"
+        echo "--- Enable autostart ---"
         echo "[Unit]
          Description=Firmware Analysis and Comparison Tool (FACT).
 

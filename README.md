@@ -1,4 +1,4 @@
-# Vagrantfile  - FACT_box
+# Vagrantfile  - FACTbox
 This repo provides a Vagrantfile to simply test and evaluate the [FACT](https://github.com/fkie-cad/FACT_core) framework.
 
 The box is made to boot in the background and forwards the webinterface to the local machine.
@@ -9,9 +9,19 @@ Just visit the following address to use FACT.
 It is not required to access the box after boot.
 
 
+# Vagrant init / Vagrant up
+I uploaded a Vagrant box into the [Vagrant Cloud](https://app.vagrantup.com/botlabs-dev/boxes/FACTbox), so a ready-to-run VM can simply be downloaded with the following commands:
+
+  ```
+  $ sudo apt-get install vagrant virtualbox
+  $ vagrant init botlabs-dev/FACTbox
+  $ vagrant up
+  ```
+
+
 ## System requirements
-Please keep in mind that FACT requests a lot of system resources. Therefore, the Vagrant VM will be build
-with the follwing specs:
+Please keep in mind that FACT requires a lot of system resources. Therefore, the Vagrant VM will be build
+with the following specs:
 
   * vb.cpus = 4
   * vb.memory = "12288"
@@ -25,7 +35,7 @@ Also, since the FACT_box freshly installs FACT, the whole setup needs roughly 1 
   $ sudo apt-get install vagrant virtualbox
   $ vagrant plugin install vagrant-reload vagrant-disksize  # reboot vm and resize disk
   $ git clone git@github.com:botlabsDev/FACT_box.git
-  $ cd FACT_box
+  $ cd FACTbox
   $ vagrant up
   ```
 
