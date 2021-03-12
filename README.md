@@ -1,5 +1,5 @@
 # Vagrantfile  - FACTbox
-This repo provides a Vagrantfile to simply test and evaluate the [FACT](https://github.com/fkie-cad/FACT_core) framework.
+This repo provides a Vagrantfile to simply test and to evaluate the [FACT](https://github.com/fkie-cad/FACT_core) framework.
 
 The box is made to boot in the background and forwards the webinterface to the local machine.
 Just visit the following address to use FACT.

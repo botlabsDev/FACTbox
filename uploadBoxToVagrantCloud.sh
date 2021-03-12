@@ -1,12 +1,14 @@
 #!/bin/bash
-set -eu
+set -euxo pipefail
+
 
 # ensure login credentials
 vagrant cloud auth login
 
 # create Base VM and ensure Base VM is online
-vagrant up || true
-
+vagrant box update || true
+vagrant destroy -f || true
+vagrant up
 
 PROJ_ROOT=$(pwd)
 BOX_NAME=FACTbox
@@ -40,7 +42,7 @@ BASH_CLEAN_VM="sudo apt-get clean;
 vagrant ssh -- -t $BASH_ADD_VAGRANT_KEY
 vagrant ssh -- -t $BASH_CLEAN_VM
 
-
+exit
 rm -rf $BOX_FOLDER
 mkdir -p $BOX_FOLDER
 cp $VAGRANT_BOX_FILE $BOX_FOLDER/
@@ -49,11 +51,12 @@ cd $BOX_FOLDER
 # create box
 vagrant package --base $VIRTUAL_BOX_NAME --output $BOX_NAME.box --vagrantfile $VAGRANT_BOX_FILE
 
-# add box locally to Vagrant and start it for debugging reason
+# add box locally to Vagrant and start it for debug reasons
 #vagrant box add testBox $BOX_NAME.box
 #vagrant init testBox
 #vagrant up
 
+exit
 # upload box
 hash=$(sha1sum $BOX_NAME.box | cut -d " " -f 1)
 echo "vagrant cloud publish $ACCOUNT/$BOX_NAME $VERSION virtualbox $BOX_NAME.box --box-VERSION $VERSION --force --release -c $hash -C sha1 "

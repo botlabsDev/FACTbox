@@ -22,13 +22,13 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "shell" do |s|
     s.inline = <<-SHELL
-        set -ex
+        set -euxo pipefail
         echo "--- Prepare installation for the Firmware Analysis and Comparison Tool (FACT) ---"
         sudo apt update
         sudo apt install -y git python3 python3-pip jq
         sudo mkdir -p /FACT_core
         sudo chown -R vagrant:users /FACT_core
-        VERSION_TAG=$(curl --silent "https://api.github.com/repos/fkie-cad/FACT_core/releases/latest" | jq -r .tag_name)
+        VERSION_TAG=$(curl --silent "https://api.github.com/repos/fkie-cad/FACT_core/releases/latest"| jq -r .tag_name  | tr -d "v//")
         git clone https://github.com/fkie-cad/FACT_core.git --branch $VERSION_TAG --single-branch /FACT_core
         /FACT_core/src/install/pre_install.sh && sudo mkdir -p /media/data && sudo chown -R $USER /media/data
       SHELL
@@ -38,7 +38,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "shell" do |s|
      s.inline = <<-SHELL
-        set -ex
+        set -euxo pipefail
         echo "--- Install the Firmware Analysis and Comparison Tool (FACT) ---"
         /FACT_core/src/install.py
 
