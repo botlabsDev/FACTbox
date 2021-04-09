@@ -16,8 +16,8 @@ ACCOUNT=botlabs-dev
 BOX_FOLDER=createBoxForVagrantCloud
 VAGRANT_BOX_FILE=VagrantBoxFile
 VIRTUAL_BOX_NAME=$(vboxmanage list vms | grep FACT | head -n 1 | cut -d '"' -f 2)
-VERSION=$(curl --silent "https://api.github.com/repos/fkie-cad/FACT_core/releases/latest" | jq -r .tag_name  | tr -d "v//")
-VERSION=$VERSION.$(date +'%Y%m%d')
+VERSION_ORIG=$(curl --silent "https://api.github.com/repos/fkie-cad/FACT_core/releases/latest" | jq -r .tag_name  | tr -d "v//")
+VERSION=$VERSION_ORIG.$(date +'%Y%m%d')
 
 # print overview
 echo "++++++++++++++++++++++++++++++"
@@ -35,14 +35,15 @@ BASH_ADD_VAGRANT_KEY="wget --no-check-certificate https://raw.githubusercontent.
                       chown -R vagrant:vagrant .ssh;"
 # clean VM
 BASH_CLEAN_VM="sudo apt-get clean;
-               sudo dd if=/dev/zero of=/EMPTY bs=1M;
+               sudo dd if=/dev/zero of=/EMPTY bs=1M || true;
                sudo rm -f /EMPTY;
                echo ''>~/.bash_history && history;"
 
 vagrant ssh -- -t $BASH_ADD_VAGRANT_KEY
 vagrant ssh -- -t $BASH_CLEAN_VM
 
-exit
+
+
 rm -rf $BOX_FOLDER
 mkdir -p $BOX_FOLDER
 cp $VAGRANT_BOX_FILE $BOX_FOLDER/
@@ -56,11 +57,10 @@ vagrant package --base $VIRTUAL_BOX_NAME --output $BOX_NAME.box --vagrantfile $V
 #vagrant init testBox
 #vagrant up
 
-exit
 # upload box
 hash=$(sha1sum $BOX_NAME.box | cut -d " " -f 1)
 echo "vagrant cloud publish $ACCOUNT/$BOX_NAME $VERSION virtualbox $BOX_NAME.box --box-VERSION $VERSION --force --release -c $hash -C sha1 "
-vagrant cloud publish $ACCOUNT/$BOX_NAME $VERSION virtualbox $BOX_NAME.box --box-VERSION $VERSION --force --release -c $hash -C sha1
+vagrant cloud publish $ACCOUNT/$BOX_NAME $VERSION virtualbox $BOX_NAME.box --box-VERSION $VERSION --force --release -c $hash -C sha1 --short-description "FACT - The Firmware Analysis and Comparison Tool (Release: $VERSION_ORIG)" --description "FACT - The Firmware Analysis and Comparison Tool (Release: $VERSION_ORIG)"
 
 # clean
 cd $PROJ_ROOT
